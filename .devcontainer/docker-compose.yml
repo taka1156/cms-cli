@@ -1,0 +1,6 @@
+services:
+    cms-cli:
+      build: .
+      tty: true
+      volumes:
+        - ../:/workspace

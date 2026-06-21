@@ -1,0 +1,53 @@
+{
+  "$schema": "./mdc.schema.json",
+  "content_dir": "./content",
+  "output_dir": "./dist",
+  "categories": [
+    {
+      "name": "tech",
+      "image": ""
+    },
+    {
+      "name": "idea",
+      "image": ""
+    },
+    {
+      "name": "commandline",
+      "image": ""
+    }
+  ],
+  "tags": [
+    {
+      "name": "javascript",
+      "image": ""
+    },
+    {
+      "name": "typescript",
+      "image": ""
+    },
+    {
+      "name": "go",
+      "image": ""
+    },
+    {
+      "name": "python",
+      "image": ""
+    },
+    {
+      "name": "ansible",
+      "image": ""
+    },
+    {
+      "name": "react",
+      "image": ""
+    },
+    {
+      "name": "nextjs",
+      "image": ""
+    },
+    {
+      "name": "nodejs",
+      "image": ""
+    }
+  ]
+}

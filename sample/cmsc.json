@@ -1,0 +1,61 @@
+{
+  "$schema": "../cmsc.schema.json",
+  "content_dir": "./articles",
+  "output_dir": "./output",
+  "categories": [
+    {
+      "name": "commandline",
+      "image": "./images/commandline.svg"
+    },
+    {
+      "name": "frontend",
+      "image": "./images/frontend.svg"
+    },
+    {
+      "name": "backend",
+      "image": "./images/backend.svg"
+    },
+    {
+      "name": "infrastructure",
+      "image": "./images/infrastructure.svg"
+    },
+    {
+      "name": "tool",
+      "image": "./images/tool.svg"
+    },
+    {
+      "name": "programming_contest",
+      "image": "./images/programming_contest.svg"
+    }
+  ],
+  "tags": [
+    {
+      "name": "go",
+      "image": "./images/go.png"
+    },
+    {
+      "name": "python",
+      "image": "./images/python.png"
+    },
+    {
+      "name": "react",
+      "image": "./images/react.svg"
+    },
+    {
+      "name": "nextjs",
+      "image": "./images/nextjs.svg"
+    },
+    {
+      "name": "vitejs",
+      "image": "./images/vitejs.svg"
+    },
+    {
+      "name": "electron",
+      "image": "./images/electron.png"
+    },
+    {
+      "name": "docker",
+      "image": "./images/docker.png"
+    }
+  ]
+}
