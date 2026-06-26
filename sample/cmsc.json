@@ -1,7 +1,8 @@
 {
   "$schema": "../cmsc.schema.json",
-  "content_dir": "./articles",
-  "output_dir": "./output",
+  "articleDir": "articles",
+  "imagesDir": "images",
+  "outputDir": "output",
   "categories": [
     {
       "name": "commandline",

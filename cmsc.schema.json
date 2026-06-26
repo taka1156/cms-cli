@@ -3,12 +3,17 @@
   "title": "CMS CLI Configuration Schema",
   "type": "object",
   "properties": {
-    "content_dir": {
+    "articleDir": {
       "type": "string",
       "description": "The directory path where your Markdown files (.md) are stored.",
-      "default": "./content"
+      "default": "./articles"
     },
-    "output_dir": {
+    "imagesDir": {
+      "type": "string",
+      "description": "The directory path where your image files are stored.",
+      "default": "./images"
+    },
+    "outputDir": {
       "type": "string",
       "description": "The directory path where all build outputs are exported: all.json (full post data including content), category.json (category -> {image, slugs}), and tag.json (tag -> {image, slugs}).",
       "default": "./dist"
@@ -30,7 +35,7 @@
       "uniqueItems": true
     }
   },
-  "required": ["content_dir", "output_dir", "categories", "tags"],
+  "required": ["articleDir", "imagesDir", "outputDir", "categories", "tags"],
   "additionalProperties": false,
   "$defs": {
     "taxonomyDefinition": {

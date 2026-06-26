@@ -51,8 +51,8 @@ func (c *ConvertArticleCommand) Convert(jsonNames entity.JsonNames) {
 	categoryNames := taxonomyNames(config.Categories)
 	tagNames := taxonomyNames(config.Tags)
 
-	// content_dir配下のMarkdownファイルを再帰的に探索し、記事データを読み込む
-	data, err = walkMarkdownFiles(config.ContentDir, data, config, categoryNames, tagNames)
+	// article_dir配下のMarkdownファイルを再帰的に探索し、記事データを読み込む
+	data, err = walkMarkdownFiles(config.ArticleDir, data, config, categoryNames, tagNames)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

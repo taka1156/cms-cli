@@ -1,11 +1,8 @@
 package internal
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
-
-	"github.com/taka1156/cms-cli/internal/entity"
 )
 
 type SetupProjectCommand struct{}
@@ -14,43 +11,26 @@ func NewSetupProjectCommand() *SetupProjectCommand {
 	return &SetupProjectCommand{}
 }
 
-// 初期化コマンドの処理
 func (c *SetupProjectCommand) Setup() {
-	configName := "cmsc.json"
-
-	// すでにファイルがある場合は上書きを防ぐ
-	if _, err := os.Stat(configName); err == nil {
-		fmt.Println("Error: cmsc.json already exists in this directory.")
-		return
-	}
-
-	// デフォルト設定の作成
-	defaultConfig := entity.CMSConfig{
-		Schema:     "./cms.schema.json",
-		ContentDir: "./content",
-		OutputDir:  "./dist",
-		Categories: []entity.TaxonomyDefinition{
-			{Name: "Tech", Image: ""},
-			{Name: "Log", Image: ""},
-		},
-		Tags: []entity.TaxonomyDefinition{
-			{Name: "Go", Image: ""},
-			{Name: "CLI", Image: ""},
-		},
-	}
-
-	// JSONに変換
-	jsonBytes, err := json.MarshalIndent(defaultConfig, "", "  ")
+	config, err := loadConfig()
 	if err != nil {
-		fmt.Printf("Error generating default config: %v\n", err)
+		fmt.Println("Error:", err)
 		return
 	}
 
-	// ファイル書き出し
-	if err := os.WriteFile(configName, jsonBytes, 0644); err != nil {
-		fmt.Printf("Error writing cmsc.json: %v\n", err)
-		return
+	dirs := []string{
+		config.ArticleDir,
+		config.ImagesDir + "/article",
+		config.ImagesDir + "/category",
+		config.ImagesDir + "/tag",
 	}
 
-	fmt.Println("Success! Created default cmsc.json with schema link.")
+	for _, dir := range dirs {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			fmt.Printf("Error creating directory %s: %v\n", dir, err)
+			return
+		}
+	}
+
+	fmt.Println("Success! Project setup completed.")
 }

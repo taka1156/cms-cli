@@ -55,7 +55,7 @@ func (c *AddArticleCommand) Add() {
 	}
 
 	// 4. slugの自動採番（UUIDベース、人間に採番させない）
-	slug, err := generateUniqueSlug(config.ContentDir)
+	slug, err := generateUniqueSlug(config.ArticleDir)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -74,18 +74,18 @@ func (c *AddArticleCommand) Add() {
 	}
 
 	// 6. フロントマター付きMarkdownの書き出し
-	if err := writePostFile(config.ContentDir, post); err != nil {
+	if err := writePostFile(config.ArticleDir, post); err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	fmt.Printf("Success! Created %s\n", filepath.Join(config.ContentDir, post.Slug+".md"))
+	fmt.Printf("Success! Created %s\n", filepath.Join(config.ArticleDir, post.Slug+".md"))
 }
 
 // フロントマター付きMarkdownファイルを書き出す
-func writePostFile(contentDir string, post entity.PostSummary) error {
-	if err := os.MkdirAll(contentDir, 0755); err != nil {
-		return fmt.Errorf("failed to create content_dir: %w", err)
+func writePostFile(articleDir string, post entity.PostSummary) error {
+	if err := os.MkdirAll(articleDir, 0755); err != nil {
+		return fmt.Errorf("failed to create article_dir: %w", err)
 	}
 
 	frontMatter := struct {
@@ -112,7 +112,7 @@ func writePostFile(contentDir string, post entity.PostSummary) error {
 	buf.Write(yamlBytes)
 	buf.WriteString("---\n\n")
 
-	path := filepath.Join(contentDir, post.Slug+".md")
+	path := filepath.Join(articleDir, post.Slug+".md")
 
 	// 念のため上書き防止（UUID採番後の最終チェック）
 	if _, err := os.Stat(path); err == nil {
@@ -196,10 +196,10 @@ func promptMultiSelect(reader *bufio.Reader, label string, options []string) ([]
 }
 
 // UUIDベースでslugを自動採番する。衝突した場合は再採番する。
-func generateUniqueSlug(contentDir string) (string, error) {
+func generateUniqueSlug(articleDir string) (string, error) {
 	for i := 0; i < 10; i++ {
 		candidate := uuid.New().String()
-		path := filepath.Join(contentDir, candidate+".md")
+		path := filepath.Join(articleDir, candidate+".md")
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			return candidate, nil
 		}

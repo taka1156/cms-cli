@@ -15,8 +15,9 @@ type TaxonomyDefinition struct {
 // 設定ファイルの構造
 type CMSConfig struct {
 	Schema     string               `json:"$schema"`
-	ContentDir string               `json:"content_dir"`
-	OutputDir  string               `json:"output_dir"`
+	ArticleDir string               `json:"articleDir"`
+	ImagesDir  string               `json:"imagesDir"`
+	OutputDir  string               `json:"outputDir"`
 	Categories []TaxonomyDefinition `json:"categories"`
 	Tags       []TaxonomyDefinition `json:"tags"`
 }

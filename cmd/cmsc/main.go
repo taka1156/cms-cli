@@ -16,28 +16,39 @@ func main() {
 		Tag:      entity.TAG_JSON_FILE_NAME,
 	}
 
-	setupCommands := internal.NewSetupProjectCommand()
-	addCommand := internal.NewAddArticleCommand()
-	convertCommand := internal.NewConvertArticleCommand()
+	cmd := struct {
+		*internal.InitializeConfigCommand
+		*internal.SetupProjectCommand
+		*internal.AddArticleCommand
+		*internal.ConvertArticleCommand
+	}{
+		internal.NewInitializeConfigCommand(),
+		internal.NewSetupProjectCommand(),
+		internal.NewAddArticleCommand(),
+		internal.NewConvertArticleCommand(),
+	}
 
 	// コマンド引数のチェック
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
+		case "init":
+			cmd.Initialize()
+			return
 		case "setup":
-			setupCommands.Setup()
+			cmd.Setup()
 			return
 		case "new":
-			addCommand.Add()
+			cmd.Add()
 			return
 		case "convert":
-			convertCommand.Convert(jsonNames)
+			cmd.Convert(jsonNames)
 			return
 		default:
-			fmt.Println("Unknown command. Available commands: setup, new, convert")
+			fmt.Println("Unknown command. Available commands: init, setup, new, convert")
 			return
 		}
 	} else {
-		fmt.Println("No command provided. Available commands: setup, new, convert")
+		fmt.Println("No command provided. Available commands: init, setup, new, convert")
 	}
 
 }
