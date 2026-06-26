@@ -22,11 +22,11 @@ mkdir -p dist tmp
 VERSION=$(git describe --tags --always 2>/dev/null || echo "dev")
 
 if [ "${ARCHIVE}" = "exe" ]; then
-	out="dist/cmsc_${GOOS}_${GOARCH}.exe"
-	go build -trimpath -o "${out}" ./cmd/cmsc
+	out="dist/cms-cli_${GOOS}_${GOARCH}.exe"
+	go build -trimpath -o "${out}" ./cmd/cms-cli
 else
-	bin="tmp/cmsc"
-	go build -trimpath -o "${bin}" ./cmd/cmsc
-	tar -C tmp -czf "dist/cmsc_${GOOS}_${GOARCH}.tar.gz" cmsc
+	bin="tmp/cms-cli"
+	go build -trimpath -o "${bin}" ./cmd/cms-cli
+	tar -C tmp -czf "dist/cms-cli_${GOOS}_${GOARCH}.tar.gz" cms-cli
 	rm -f "${bin}"
 fi

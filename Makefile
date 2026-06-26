@@ -1,6 +1,6 @@
 BINARY := cmsc
 BIN_DIR := ./sample
-CMD := ./cmd/cmsc
+CMD := ./cmd/cms-cli
 
 DIST_TARGETS := \
 	linux/amd64/tar.gz \
