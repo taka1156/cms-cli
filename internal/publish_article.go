@@ -73,9 +73,21 @@ func (c *PublishArticleCommand) Publish() {
 		return
 	}
 
-	if err := postOutput(cmsConfig); err != nil {
+	if err := postOutput(cmsConfig, client); err != nil {
 		fmt.Println("Error:", err)
 		return
+	}
+
+	for _, diff := range diffs {
+		switch diff.ChangeType {
+		case Added, Modified:
+			m[diff.FilePath] = entity.ImageCache{
+				FilePath: diff.FilePath,
+				Size:     diff.Size,
+			}
+		case Deleted:
+			delete(m, diff.FilePath)
+		}
 	}
 
 	err = saveCache(entity.CACHE_FILE_NAME, m)
@@ -182,7 +194,7 @@ func applyDiffs(ctx context.Context, client *s3.Client, bucketName string, diffs
 	return nil
 }
 
-func postOutput(cmsConfig entity.CMSConfig) error {
+func postOutput(cmsConfig entity.CMSConfig, client *s3.Client) error {
 	jsonDir := []string{
 		entity.ALL_JSON_FILE_NAME,
 		entity.CATEGORY_JSON_FILE_NAME,
@@ -191,7 +203,7 @@ func postOutput(cmsConfig entity.CMSConfig) error {
 	for _, jsonFile := range jsonDir {
 		filePath := filepath.Join(cmsConfig.OutputDir, jsonFile)
 		key := filepath.Base(filePath)
-		if err := uploadFileToR2(context.TODO(), nil, cmsConfig.R2.BucketName, filePath, key); err != nil {
+		if err := uploadFileToR2(context.TODO(), client, cmsConfig.R2.BucketName, filePath, key); err != nil {
 			return fmt.Errorf("failed to add file %s to multipart: %w", filePath, err)
 		}
 	}
