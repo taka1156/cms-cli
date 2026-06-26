@@ -21,11 +21,13 @@ func main() {
 		*internal.SetupProjectCommand
 		*internal.AddArticleCommand
 		*internal.ConvertArticleCommand
+		*internal.PublishArticleCommand
 	}{
 		internal.NewInitializeConfigCommand(),
 		internal.NewSetupProjectCommand(),
 		internal.NewAddArticleCommand(),
 		internal.NewConvertArticleCommand(),
+		internal.NewPublishArticleCommand(),
 	}
 
 	// コマンド引数のチェック
@@ -43,12 +45,15 @@ func main() {
 		case "convert":
 			cmd.Convert(jsonNames)
 			return
+		case "publish":
+			cmd.Publish()
+			return
 		default:
-			fmt.Println("Unknown command. Available commands: init, setup, new, convert")
+			fmt.Println("Unknown command. Available commands: init, setup, new, convert, publish")
 			return
 		}
 	} else {
-		fmt.Println("No command provided. Available commands: init, setup, new, convert")
+		fmt.Println("No command provided. Available commands: init, setup, new, convert, publish")
 	}
 
 }

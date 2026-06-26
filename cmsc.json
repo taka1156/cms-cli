@@ -17,5 +17,10 @@
     "react",
     "nextjs",
     "nodejs"
-  ]
+  ],
+  "r2": {
+    "endpoint": "https://<account_id>.r2.cloudflarestorage.com",
+    "bucketName": "<your_bucket_name>",
+    "baseUrl": "https://assets.your-domain.com"
+  }
 }

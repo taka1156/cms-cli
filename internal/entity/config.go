@@ -6,6 +6,12 @@ type JsonNames struct {
 	Tag      string
 }
 
+type R2Config struct {
+	Endpoint   string `json:"endpoint"`
+	BucketName string `json:"bucketName"`
+	BaseUrl    string `json:"baseUrl"`
+}
+
 // 設定ファイルの構造
 type CMSConfig struct {
 	Schema     string   `json:"$schema"`
@@ -14,6 +20,7 @@ type CMSConfig struct {
 	OutputDir  string   `json:"outputDir"`
 	Categories []string `json:"categories"`
 	Tags       []string `json:"tags"`
+	R2         R2Config `json:"r2"`
 }
 
 type PostSummary struct {

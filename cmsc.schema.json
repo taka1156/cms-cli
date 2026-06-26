@@ -33,8 +33,38 @@
         "type": "string"
       },
       "uniqueItems": true
+    },
+    "r2": {
+      "type": "object",
+      "description": "Cloudflare R2 configuration for image uploads.",
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "description": "S3-compatible endpoint URL. e.g. https://<account_id>.r2.cloudflarestorage.com"
+        },
+        "bucketName": {
+          "type": "string",
+          "description": "R2 bucket name."
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "Base URL for public access. e.g. https://assets.your-domain.com"
+        }
+      },
+      "required": [
+        "endpoint",
+        "bucketName",
+        "baseUrl"
+      ]
     }
   },
-  "required": ["articleDir", "imageDir", "outputDir", "categories", "tags"],
+  "required": [
+    "articleDir",
+    "imageDir",
+    "outputDir",
+    "categories",
+    "tags",
+    "r2"
+  ],
   "additionalProperties": false
 }
