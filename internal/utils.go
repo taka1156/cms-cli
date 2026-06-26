@@ -8,17 +8,17 @@ import (
 	"github.com/taka1156/cms-cli/internal/entity"
 )
 
-// cmsc.json を読み込むだけの共通処理
-func loadConfig() (entity.CMSConfig, error) {
-	var config entity.CMSConfig
+// json を読み込むだけの共通処理
+func loadJson[T entity.CMSConfig | []entity.ImageCache](path string) (T, error) {
+	var config T
 
-	configFile, err := os.ReadFile("cmsc.json")
+	configFile, err := os.ReadFile(path)
 	if err != nil {
-		return config, fmt.Errorf("cmsc.json not found. Run './cmsc init' to create a default configuration")
+		return config, fmt.Errorf("%s not found. Run './cmsc init' to create a default configuration", path)
 	}
 
 	if err := json.Unmarshal(configFile, &config); err != nil {
-		return config, fmt.Errorf("failed to parse cmsc.json: %w", err)
+		return config, fmt.Errorf("failed to parse %s: %w", path, err)
 	}
 
 	return config, nil

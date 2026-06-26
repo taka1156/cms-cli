@@ -3,11 +3,11 @@ package internal
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -18,6 +18,20 @@ import (
 	"github.com/taka1156/cms-cli/internal/entity"
 )
 
+type ChangeType int
+
+const (
+	Added ChangeType = iota
+	Modified
+	Deleted
+)
+
+type ImageDiff struct {
+	FilePath   string
+	Size       int64
+	ChangeType ChangeType
+}
+
 type PublishArticleCommand struct{}
 
 func NewPublishArticleCommand() *PublishArticleCommand {
@@ -25,7 +39,24 @@ func NewPublishArticleCommand() *PublishArticleCommand {
 }
 
 func (c *PublishArticleCommand) Publish() {
-	config, err := loadConfig()
+	cmsConfig, err := loadJson[entity.CMSConfig](entity.CONFIG_FILE_NAME)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	caches, err := loadJson[[]entity.ImageCache](entity.CACHE_FILE_NAME)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	m := make(map[string]entity.ImageCache)
+	for _, cache := range caches {
+		m[cache.FilePath] = cache
+	}
+
+	diffs, err := detectDiff(cmsConfig.ImageDir, m)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -33,41 +64,25 @@ func (c *PublishArticleCommand) Publish() {
 
 	ctx := context.Background()
 
-	clint, err := newS3Client(config)
+	client, err := newS3Client(cmsConfig)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	changedImages, err := getChangeImages(config.ImageDir)
+	err = applyDiffs(ctx, client, cmsConfig.R2.BucketName, diffs)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	for _, imagePath := range changedImages {
-		key := strings.TrimPrefix(imagePath, config.ImageDir+"/")
-		if err := uploadFileToR2(ctx, clint, config.R2.BucketName, imagePath, key); err != nil {
-			fmt.Println("Error:", err)
-			return
-		}
-	}
-
-	deletedImages, err := getDeletedImages(config.ImageDir)
-	if err != nil {
+	if err := postOutput(cmsConfig); err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	for _, imagePath := range deletedImages {
-		key := strings.TrimPrefix(imagePath, config.ImageDir+"/")
-		if err := deleteFileFromR2(ctx, clint, config.R2.BucketName, key); err != nil {
-			fmt.Println("Error:", err)
-			return
-		}
-	}
-
-	if err := postOutput(config); err != nil {
+	err = saveCache(entity.CACHE_FILE_NAME, m)
+	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
@@ -90,54 +105,19 @@ func contentType(path string) string {
 	}
 }
 
-func getChangeImages(imageDir string) ([]string, error) {
-	cmd := exec.Command("git", "diff", "HEAD~1", "HEAD", "--name-only", "--cached")
+func detectDiff(imageDir string, caches map[string]entity.ImageCache) ([]ImageDiff, error) {
+	current := map[string]entity.ImageCache{}
 
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	if err := cmd.Run(); err != nil {
-		return getAllImages(imageDir)
-	}
-
-	var images []string
-	for _, f := range strings.Split(out.String(), "\n") {
-		if strings.HasPrefix(f, imageDir) {
-			images = append(images, f)
-		}
-	}
-
-	return images, nil
-}
-
-func getDeletedImages(imageDir string) ([]string, error) {
-	cmd := exec.Command("git", "diff", "HEAD~1", "HEAD", "--name-only", "--diff-filter=D")
-
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	if err := cmd.Run(); err != nil {
-		return nil, nil
-	}
-
-	var images []string
-	for _, f := range strings.Split(out.String(), "\n") {
-		if strings.HasPrefix(f, imageDir) {
-			images = append(images, f)
-		}
-	}
-
-	return images, nil
-}
-
-func getAllImages(imageDir string) ([]string, error) {
-	var images []string
 	err := filepath.Walk(imageDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if !info.IsDir() {
-			images = append(images, path)
+			return nil
+		}
+		current[path] = entity.ImageCache{
+			FilePath: path,
+			Size:     info.Size(),
 		}
 		return nil
 	})
@@ -145,7 +125,64 @@ func getAllImages(imageDir string) ([]string, error) {
 		return nil, err
 	}
 
-	return images, nil
+	var diffs []ImageDiff
+
+	// Detect added or modified images
+	for path, img := range current {
+		if prev, ok := caches[path]; !ok {
+			diffs = append(diffs, ImageDiff{
+				FilePath:   path,
+				ChangeType: Added,
+			})
+		} else if prev.Size != img.Size {
+			diffs = append(diffs, ImageDiff{
+				FilePath:   path,
+				ChangeType: Modified,
+			})
+		}
+	}
+
+	// Detect deleted images
+	for path := range caches {
+		if _, ok := current[path]; !ok {
+			diffs = append(diffs, ImageDiff{
+				FilePath:   path,
+				ChangeType: Deleted,
+			})
+		}
+	}
+
+	return diffs, nil
+}
+
+func saveCache(path string, current map[string]entity.ImageCache) error {
+	caches := make([]entity.ImageCache, 0, len(current))
+	for _, c := range current {
+		caches = append(caches, c)
+	}
+
+	data, err := json.MarshalIndent(caches, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal cache: %w", err)
+	}
+
+	return os.WriteFile(path, data, 0644)
+}
+
+func applyDiffs(ctx context.Context, client *s3.Client, bucketName string, diffs []ImageDiff) error {
+	for _, diff := range diffs {
+		switch diff.ChangeType {
+		case Added, Modified:
+			if err := uploadFileToR2(ctx, client, bucketName, diff.FilePath, diff.FilePath); err != nil {
+				return err
+			}
+		case Deleted:
+			if err := deleteFileFromR2(ctx, client, bucketName, diff.FilePath); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func newS3Client(cmsConfig entity.CMSConfig) (*s3.Client, error) {

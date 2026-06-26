@@ -44,3 +44,8 @@ type ResponseData struct {
 	ByCategory map[string][]PostSummary `json:"byCategory"`
 	ByTag      map[string][]PostSummary `json:"byTag"`
 }
+
+type ImageCache struct {
+	FilePath string `json:"filePath"`
+	Size     int64  `json:"size"`
+}

@@ -23,7 +23,7 @@ func NewAddArticleCommand() *AddArticleCommand {
 
 // 記事登録（new）コマンドの処理
 func (c *AddArticleCommand) Add() {
-	config, err := loadConfig()
+	config, err := loadJson[entity.CMSConfig](entity.CONFIG_FILE_NAME)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
