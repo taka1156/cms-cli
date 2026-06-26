@@ -202,8 +202,8 @@ func postOutput(cmsConfig entity.CMSConfig, client *s3.Client) error {
 	}
 	for _, jsonFile := range jsonDir {
 		filePath := filepath.Join(cmsConfig.OutputDir, jsonFile)
-		key := filepath.Base(filePath)
-		if err := uploadFileToR2(context.TODO(), client, cmsConfig.R2.BucketName, filePath, key); err != nil {
+
+		if err := uploadFileToR2(context.TODO(), client, cmsConfig.R2.BucketName, filePath, filePath); err != nil {
 			return fmt.Errorf("failed to add file %s to multipart: %w", filePath, err)
 		}
 	}
