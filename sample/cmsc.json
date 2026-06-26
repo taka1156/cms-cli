@@ -1,62 +1,62 @@
 {
   "$schema": "../cmsc.schema.json",
-  "articleDir": "articles",
-  "imagesDir": "images",
-  "outputDir": "output",
+  "articleDir": "./articles",
+  "imagesDir": "./images",
+  "outputDir": "./output",
   "categories": [
     {
       "name": "commandline",
-      "image": "./images/commandline.svg"
+      "image": "./images/category/commandline.svg"
     },
     {
       "name": "frontend",
-      "image": "./images/frontend.svg"
+      "image": "./images/category/frontend.svg"
     },
     {
       "name": "backend",
-      "image": "./images/backend.svg"
+      "image": "./images/category/backend.svg"
     },
     {
       "name": "infrastructure",
-      "image": "./images/infrastructure.svg"
+      "image": "./images/category/infrastructure.svg"
     },
     {
       "name": "tool",
-      "image": "./images/tool.svg"
+      "image": "./images/category/tool.svg"
     },
     {
       "name": "programming_contest",
-      "image": "./images/programming_contest.svg"
+      "image": "./images/category/programming_contest.svg"
     }
   ],
   "tags": [
     {
       "name": "go",
-      "image": "./images/go.png"
+      "image": "./images/tag/go.png"
     },
     {
       "name": "python",
-      "image": "./images/python.png"
+      "image": "./images/tag/python.png"
     },
     {
       "name": "react",
-      "image": "./images/react.svg"
+      "image": "./images/tag/react.svg"
     },
     {
       "name": "nextjs",
-      "image": "./images/nextjs.svg"
+      "image": "./images/tag/nextjs.svg"
     },
     {
       "name": "vitejs",
-      "image": "./images/vitejs.svg"
+      "image": "./images/tag/vitejs.svg"
     },
     {
       "name": "electron",
-      "image": "./images/electron.png"
+      "image": "./images/tag/electron.png"
     },
     {
       "name": "docker",
-      "image": "./images/docker.png"
+      "image": "./images/tag/docker.png"
     }
   ]
 }
