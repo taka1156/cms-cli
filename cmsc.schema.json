@@ -35,6 +35,6 @@
       "uniqueItems": true
     }
   },
-  "required": ["articleDir", "imagesDir", "outputDir", "categories", "tags"],
+  "required": ["articleDir", "imageDir", "outputDir", "categories", "tags"],
   "additionalProperties": false
 }
