@@ -21,10 +21,7 @@
     "docker"
   ],
   "r2": {
-    "endpoint": "https://<account_id>.r2.cloudflarestorage.com",
-    "accessKeyId": "<your_access_key_id>",
-    "secretAccessKey": "<your_secret_access_key>",
-    "bucketName": "<your_bucket_name>",
-    "baseUrl": "https://assets.your-domain.com"
+    "bucketName": "cms",
+    "baseUrl": ""
   }
 }

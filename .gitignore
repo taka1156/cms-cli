@@ -4,3 +4,4 @@ sample/cmsc
 
 **/output
 dist
+**/.env

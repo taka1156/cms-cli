@@ -2,13 +2,19 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/taka1156/cms-cli/internal"
 	"github.com/taka1156/cms-cli/internal/entity"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	jsonNames := entity.JsonNames{
 		All:      entity.ALL_JSON_FILE_NAME,

@@ -61,7 +61,7 @@ func (c *PublishArticleCommand) Publish() {
 
 	ctx := context.Background()
 
-	client, err := newS3Client(cmsConfig)
+	client, err := newS3Client()
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -216,12 +216,13 @@ func postOutput(cmsConfig entity.CMSConfig, client *s3.Client) error {
 	return nil
 }
 
-func newS3Client(cmsConfig entity.CMSConfig) (*s3.Client, error) {
+func newS3Client() (*s3.Client, error) {
 	accessKey := os.Getenv("R2_ACCESS_KEY_ID")
 	secretKey := os.Getenv("R2_SECRET_ACCESS_KEY")
+	endpoint := os.Getenv("R2_ENDPOINT")
 
-	if accessKey == "" || secretKey == "" {
-		return nil, fmt.Errorf("R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY environment variables must be set")
+	if accessKey == "" || secretKey == "" || endpoint == "" {
+		return nil, fmt.Errorf("R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_ENDPOINT environment variables must be set")
 	}
 
 	cfg, err := config.LoadDefaultConfig(
@@ -233,7 +234,7 @@ func newS3Client(cmsConfig entity.CMSConfig) (*s3.Client, error) {
 		return nil, fmt.Errorf("failed to load AWS config: %w", err)
 	}
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.BaseEndpoint = aws.String(cmsConfig.R2.Endpoint)
+		o.BaseEndpoint = aws.String(endpoint)
 	})
 
 	return client, nil

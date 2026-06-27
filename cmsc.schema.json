@@ -38,10 +38,6 @@
       "type": "object",
       "description": "Cloudflare R2 configuration for image uploads.",
       "properties": {
-        "endpoint": {
-          "type": "string",
-          "description": "S3-compatible endpoint URL. e.g. https://<account_id>.r2.cloudflarestorage.com"
-        },
         "bucketName": {
           "type": "string",
           "description": "R2 bucket name."
@@ -52,7 +48,6 @@
         }
       },
       "required": [
-        "endpoint",
         "bucketName",
         "baseUrl"
       ]
