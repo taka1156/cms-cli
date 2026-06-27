@@ -21,6 +21,7 @@ type ChangeType int
 const (
 	Added ChangeType = iota
 	Modified
+	NoChange
 	Deleted
 )
 
@@ -43,18 +44,21 @@ func (c *PublishArticleCommand) Publish() {
 		return
 	}
 
-	caches, err := loadJson[[]entity.ImageCache](entity.CACHE_FILE_NAME)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
+	caches := []entity.ImageCache{}
+	if _, err := os.Stat(entity.CACHE_FILE_NAME); os.IsNotExist(err) {
+		if err := saveCache(entity.CACHE_FILE_NAME, caches); err != nil {
+			fmt.Printf("Error creating .caches.json: %v\n", err)
+			return
+		}
+	} else {
+		caches, err = loadJson[[]entity.ImageCache](entity.CACHE_FILE_NAME)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
 	}
 
-	m := make(map[string]entity.ImageCache)
-	for _, cache := range caches {
-		m[cache.FilePath] = cache
-	}
-
-	diffs, err := detectDiff(cmsConfig.ImageDir, m)
+	diffs, err := detectDiff(cmsConfig.ImageDir, caches)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -79,19 +83,20 @@ func (c *PublishArticleCommand) Publish() {
 		return
 	}
 
+	newCaches := []entity.ImageCache{}
 	for _, diff := range diffs {
 		switch diff.ChangeType {
-		case Added, Modified:
-			m[diff.FilePath] = entity.ImageCache{
+		case Added, Modified, NoChange:
+			newCaches = append(newCaches, entity.ImageCache{
 				FilePath: diff.FilePath,
 				Size:     diff.Size,
-			}
+			})
 		case Deleted:
-			delete(m, diff.FilePath)
+			// skip deleted images
 		}
 	}
 
-	err = saveCache(entity.CACHE_FILE_NAME, m)
+	err = saveCache(entity.CACHE_FILE_NAME, newCaches)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -115,7 +120,7 @@ func contentType(path string) string {
 	}
 }
 
-func detectDiff(imageDir string, caches map[string]entity.ImageCache) ([]ImageDiff, error) {
+func detectDiff(imageDir string, caches []entity.ImageCache) ([]ImageDiff, error) {
 	current := map[string]entity.ImageCache{}
 
 	err := filepath.Walk(imageDir, func(path string, info os.FileInfo, err error) error {
@@ -135,11 +140,21 @@ func detectDiff(imageDir string, caches map[string]entity.ImageCache) ([]ImageDi
 		return nil, err
 	}
 
+	// Helper function to find a cache entry by file path
+	findCache := func(path string) *entity.ImageCache {
+		for _, cache := range caches {
+			if cache.FilePath == path {
+				return &cache
+			}
+		}
+		return nil
+	}
+
 	var diffs []ImageDiff
 
-	// Detect added or modified images
+	// Detect added, modified, no change images
 	for path, img := range current {
-		if prev, ok := caches[path]; !ok {
+		if prev := findCache(path); prev == nil {
 			diffs = append(diffs, ImageDiff{
 				FilePath:   path,
 				Size:       img.Size,
@@ -151,14 +166,20 @@ func detectDiff(imageDir string, caches map[string]entity.ImageCache) ([]ImageDi
 				Size:       img.Size,
 				ChangeType: Modified,
 			})
+		} else if prev.Size == img.Size {
+			diffs = append(diffs, ImageDiff{
+				FilePath:   path,
+				Size:       img.Size,
+				ChangeType: NoChange,
+			})
 		}
 	}
 
 	// Detect deleted images
-	for path := range caches {
-		if _, ok := current[path]; !ok {
+	for _, cache := range caches {
+		if _, ok := current[cache.FilePath]; !ok {
 			diffs = append(diffs, ImageDiff{
-				FilePath:   path,
+				FilePath:   cache.FilePath,
 				Size:       0,
 				ChangeType: Deleted,
 			})
@@ -168,12 +189,7 @@ func detectDiff(imageDir string, caches map[string]entity.ImageCache) ([]ImageDi
 	return diffs, nil
 }
 
-func saveCache(path string, current map[string]entity.ImageCache) error {
-	caches := make([]entity.ImageCache, 0, len(current))
-	for _, c := range current {
-		caches = append(caches, c)
-	}
-
+func saveCache(path string, caches []entity.ImageCache) error {
 	data, err := json.MarshalIndent(caches, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal cache: %w", err)
