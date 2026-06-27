@@ -4,6 +4,7 @@
         "GOARCH",
         "godotenv",
         "joho",
-        "trimpath"
+        "trimpath",
+        "webp"
     ]
 }

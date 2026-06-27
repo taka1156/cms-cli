@@ -115,6 +115,10 @@ func contentType(path string) string {
 		return "image/gif"
 	case ".svg":
 		return "image/svg+xml"
+	case ".webp":
+		return "image/webp"
+	case ".json":
+		return "application/json"
 	default:
 		return "application/octet-stream"
 	}
