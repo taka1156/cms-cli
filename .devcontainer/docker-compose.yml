@@ -4,3 +4,23 @@ services:
       tty: true
       volumes:
         - ../:/workspace
+    r2mock:
+      image: rustfs/rustfs:latest
+      ports:
+        - "9000:9000"
+        - "9001:9001"
+      volumes:
+        - ./r2mock:/data
+      environment:
+        - RUSTFS_ROOT_KEY=r2mock
+        - RUSTFS_SECRET_KEY=r2mock
+        - RUSTFS_CONSOLE_ENABLED=true
+      command: >
+        --address :9000
+        --console-enable
+        --access-key r2mock
+        --secret-key r2mock
+      restart: unless-stopped
+
+volumes:
+  r2mock:

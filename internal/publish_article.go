@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -220,6 +221,10 @@ func newS3Client() (*s3.Client, error) {
 	accessKey := os.Getenv("R2_ACCESS_KEY_ID")
 	secretKey := os.Getenv("R2_SECRET_ACCESS_KEY")
 	endpoint := os.Getenv("R2_ENDPOINT")
+	usePathStyle, err := strconv.ParseBool(os.Getenv("ENABLE_PATH_STYLE_ENDPOINTS"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse ENABLE_PATH_STYLE_ENDPOINTS: %w", err)
+	}
 
 	if accessKey == "" || secretKey == "" || endpoint == "" {
 		return nil, fmt.Errorf("R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_ENDPOINT environment variables must be set")
@@ -235,6 +240,7 @@ func newS3Client() (*s3.Client, error) {
 	}
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.BaseEndpoint = aws.String(endpoint)
+		o.UsePathStyle = usePathStyle
 	})
 
 	return client, nil

@@ -5,3 +5,4 @@ sample/cmsc
 **/output
 dist
 **/.env
+.devcontainer/r2mock
