@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/taka1156/cms-cli/internal/entity"
+	"github.com/taka1156/brite/internal/entity"
 	"gopkg.in/yaml.v3"
 )
 
@@ -22,31 +22,29 @@ func NewConvertArticleCommand() *ConvertArticleCommand {
 	return &ConvertArticleCommand{}
 }
 
-// 記事変換（convert）コマンドの処理
 func (c *ConvertArticleCommand) Convert(jsonNames entity.JsonNames) {
 
-	// 1. cmsc.json の読み込み（通常のビルド処理）
-	config, err := loadJson[entity.CMSConfig](entity.CONFIG_FILE_NAME)
+	config, err := loadJson[entity.BriteConfig](entity.CONFIG_FILE_NAME)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	// 出力データの初期化
+	// Initialize the output data
 	data := &entity.ResponseData{
 		All:        []entity.Post{},
 		ByCategory: make(map[string][]entity.PostSummary),
 		ByTag:      make(map[string][]entity.PostSummary),
 	}
 
-	// article_dir配下のMarkdownファイルを再帰的に探索し、記事データを読み込む
+	// Recursively scan the article_dir for Markdown files and read their content
 	data, err = walkMarkdownFiles(config.ArticleDir, data, config, config.Categories, config.Tags)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	// 基準となる日付を保持するため、slug -> created_at のマップを作成
+	// Created a map of slug to created_at to keep track of the reference date.
 	slugToCreatedAt := make(map[string]string, len(data.All))
 	for _, p := range data.All {
 		slugToCreatedAt[p.Summary.Slug] = p.Summary.CreatedAt
@@ -59,7 +57,6 @@ func (c *ConvertArticleCommand) Convert(jsonNames entity.JsonNames) {
 		sortSlugsByDateDesc(data.ByTag[name], slugToCreatedAt)
 	}
 
-	// JSONへの変換と書き出し（all.json / category.json / tag.json の3ファイルに分割）
 	if err := os.MkdirAll(config.OutputDir, 0755); err != nil {
 		fmt.Printf("Error creating output_dir: %v\n", err)
 		return
@@ -87,7 +84,7 @@ func replaceImagePaths(content, baseUrl, imageDir string) string {
 	var imgTagRegex = regexp.MustCompile(`!\[([^\]]*)\]\(([^)]+\.(png|svg|jpe?g|gif|webp))\)`)
 	var htmlImgRegex = regexp.MustCompile(`<img([^>]*?)src="([^"]+\.(png|svg|jpe?g|gif|webp))"([^>]*?)>`)
 
-	// Markdownの画像リンクを変換
+	// convert Markdown image syntax to use the baseUrl for images in imageDir
 	content = imgTagRegex.ReplaceAllStringFunc(content, func(match string) string {
 		sub := imgTagRegex.FindStringSubmatch(match)
 		if len(sub) < 3 {
@@ -96,13 +93,13 @@ func replaceImagePaths(content, baseUrl, imageDir string) string {
 		alt := sub[1]
 		path := sub[2]
 
-		// 相対パスを正規化して imageDir 配下かチェック
+		// Normalize the relative path and check if it is under imageDir
 		clean := filepath.Clean(path)
 		if !strings.Contains(clean, imageDir) {
 			return match
 		}
 
-		// imageDir 以降のパスを抽出
+		// Pick the part of the path after imageDir and construct the new URL
 		idx := strings.Index(clean, imageDir)
 		rel := clean[idx+len(imageDir):]
 		url := strings.TrimSuffix(baseUrl, "/") + "/" + strings.TrimPrefix(rel, "/")
@@ -110,7 +107,7 @@ func replaceImagePaths(content, baseUrl, imageDir string) string {
 		return fmt.Sprintf("![%s](%s)", alt, url)
 	})
 
-	// HTML img タグの src 属性も同様に変換
+	// convert HTML <img> tags to use the baseUrl for images in imageDir
 	content = htmlImgRegex.ReplaceAllStringFunc(content, func(match string) string {
 		sub := htmlImgRegex.FindStringSubmatch(match)
 		if len(sub) < 3 {
@@ -120,13 +117,13 @@ func replaceImagePaths(content, baseUrl, imageDir string) string {
 		path := sub[2]
 		after := sub[3]
 
-		// 相対パスを正規化して imageDir 配下かチェック
+		// Normalize the relative path and check if it is under imageDir
 		clean := filepath.Clean(path)
 		if !strings.Contains(clean, imageDir) {
 			return match
 		}
 
-		// imageDir 以降のパスを抽出
+		// Pick the part of the path after imageDir and construct the new URL
 		idx := strings.Index(clean, imageDir)
 		rel := clean[idx+len(imageDir):]
 		url := strings.TrimSuffix(baseUrl, "/") + "/" + strings.TrimPrefix(rel, "/")
@@ -137,8 +134,8 @@ func replaceImagePaths(content, baseUrl, imageDir string) string {
 	return content
 }
 
-// 全記事を走査し、summaryとcontentを読み込む。カテゴリ/タグごとの記事一覧も作成する。
-func walkMarkdownFiles(contentDir string, data *entity.ResponseData, config entity.CMSConfig, categoryNames, tagNames []string) (*entity.ResponseData, error) {
+// walkMarkdownFiles scans all articles, reads their summary and content, and creates lists of articles by category/tag.
+func walkMarkdownFiles(contentDir string, data *entity.ResponseData, config entity.BriteConfig, categoryNames, tagNames []string) (*entity.ResponseData, error) {
 	contains := func(list []string, item string) bool {
 		for _, x := range list {
 			if x == item {
@@ -148,7 +145,6 @@ func walkMarkdownFiles(contentDir string, data *entity.ResponseData, config enti
 		return false
 	}
 
-	// 3. Markdownディレクトリの巡回
 	err := filepath.WalkDir(contentDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -223,7 +219,6 @@ func walkMarkdownFiles(contentDir string, data *entity.ResponseData, config enti
 	return data, nil
 }
 
-// 任意のデータをインデント付きJSONとしてファイルに書き出す共通処理
 func writeJSONFile(path string, v interface{}) error {
 	jsonBytes, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
@@ -237,8 +232,8 @@ func writeJSONFile(path string, v interface{}) error {
 	return nil
 }
 
-// slug配列を、対応するcreated_atを基準に降順（新しい記事が先頭）でソートする。
-// slugToCreatedAtに存在しない/パース不能なslugは最も古い扱いとして末尾に回す。
+// Sort slugs by date in descending order (newest articles first).
+// Slugs that do not exist in slugToCreatedAt or cannot be parsed are treated as the oldest and moved to the end.
 func sortSlugsByDateDesc(articles []entity.PostSummary, slugToCreatedAt map[string]string) {
 	sort.SliceStable(articles, func(i, j int) bool {
 		ti, errI := time.Parse(time.RFC3339, slugToCreatedAt[articles[i].Slug])
@@ -258,8 +253,8 @@ func sortSlugsByDateDesc(articles []entity.PostSummary, slugToCreatedAt map[stri
 	})
 }
 
-// dateを基準に降順（新しい記事が先頭）でソートする。
-// パース不能なdateは最も古い扱いとして末尾に回す。
+// Sort by date in descending order (newest articles first).
+// Dates that cannot be parsed are treated as the oldest and moved to the end.
 func sortPostsByDateDesc(posts []entity.Post) {
 	sort.SliceStable(posts, func(i, j int) bool {
 		ti, errI := time.Parse(time.RFC3339, posts[i].Summary.CreatedAt)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build a single cmsc binary artifact.
+# Build a single brite binary artifact.
 #
 # Required environment variables:
 #   GOOS    - target OS   (e.g. linux, darwin, windows)
@@ -22,11 +22,11 @@ mkdir -p dist tmp
 VERSION=$(git describe --tags --always 2>/dev/null || echo "dev")
 
 if [ "${ARCHIVE}" = "exe" ]; then
-	out="dist/cms-cli_${GOOS}_${GOARCH}.exe"
-	go build -trimpath -o "${out}" ./cmd/cms-cli
+	out="dist/brite_${GOOS}_${GOARCH}.exe"
+	go build -trimpath -o "${out}" ./cmd/brite
 else
-	bin="tmp/cms-cli"
-	go build -trimpath -o "${bin}" ./cmd/cms-cli
-	tar -C tmp -czf "dist/cms-cli_${GOOS}_${GOARCH}.tar.gz" cms-cli
+	bin="tmp/brite"
+	go build -trimpath -o "${bin}" ./cmd/brite
+	tar -C tmp -czf "dist/brite_${GOOS}_${GOARCH}.tar.gz" brite
 	rm -f "${bin}"
 fi

@@ -1,4 +1,4 @@
-module github.com/taka1156/cms-cli
+module github.com/taka1156/brite
 
 go 1.26.4
 

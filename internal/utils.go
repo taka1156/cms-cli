@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/taka1156/cms-cli/internal/entity"
+	"github.com/taka1156/brite/internal/entity"
 )
 
-// json を読み込むだけの共通処理
-func loadJson[T entity.CMSConfig | []entity.ImageCache](path string) (T, error) {
+func loadJson[T entity.BriteConfig | []entity.ImageCache](path string) (T, error) {
 	var config T
 
 	configFile, err := os.ReadFile(path)
 	if err != nil {
-		return config, fmt.Errorf("%s not found. Run './cmsc init' to create a default configuration", path)
+		return config, fmt.Errorf("%s not found. Run 'brite init' to create a default configuration", path)
 	}
 
 	if err := json.Unmarshal(configFile, &config); err != nil {

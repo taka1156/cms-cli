@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="taka1156/cms-cli"
-BINARY_NAME="cms-cli"
+REPO="taka1156/brite"
+BINARY_NAME="brite"
+ # leave this as "cmsc" for backward compatibility with existing scripts
 BINARY_SHORTCUT_NAME="cmsc"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 

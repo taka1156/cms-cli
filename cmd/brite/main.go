@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/taka1156/cms-cli/internal"
-	"github.com/taka1156/cms-cli/internal/entity"
+	"github.com/taka1156/brite/internal"
+	"github.com/taka1156/brite/internal/entity"
 )
 
 func main() {

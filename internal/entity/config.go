@@ -13,7 +13,7 @@ type R2Config struct {
 }
 
 // 設定ファイルの構造
-type CMSConfig struct {
+type BriteConfig struct {
 	Schema     string   `json:"$schema"`
 	ArticleDir string   `json:"articleDir"`
 	ImageDir   string   `json:"imageDir"`

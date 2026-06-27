@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vscode/main/extensions/configuration-editing/schemas/devContainer.vscode.schema.json",
   "name": "go",
-  "service": "cms-cli",
+  "service": "brite",
   "workspaceFolder": "/workspace",
   "dockerComposeFile": "docker-compose.yml",
   "customizations": {
