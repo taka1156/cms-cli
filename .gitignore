@@ -1,8 +1,12 @@
-# OS
+# development
 .DS_Store
-sample/cmsc
-
-**/output
 dist
-**/.env
 .devcontainer/r2mock
+
+# sample dir
+sample/cmsc
+**/output
+**/.caches.json
+
+# secrets
+**/.env
