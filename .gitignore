@@ -4,7 +4,7 @@ dist
 .devcontainer/r2mock
 
 # sample dir
-sample/cmsc
+sample/brite
 **/output
 **/.caches.json
 

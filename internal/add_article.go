@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/taka1156/cms-cli/internal/entity"
+	"github.com/taka1156/brite/internal/entity"
 	"gopkg.in/yaml.v3"
 )
 
@@ -21,9 +21,8 @@ func NewAddArticleCommand() *AddArticleCommand {
 	return &AddArticleCommand{}
 }
 
-// 記事登録（new）コマンドの処理
 func (c *AddArticleCommand) Add() {
-	config, err := loadJson[entity.CMSConfig](entity.CONFIG_FILE_NAME)
+	config, err := loadJson[entity.BriteConfig](entity.CONFIG_FILE_NAME)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -31,7 +30,7 @@ func (c *AddArticleCommand) Add() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	// 1. タイトルの対話入力
+	// input title
 	fmt.Print("Title: ")
 	titleInput, _ := reader.ReadString('\n')
 	title := strings.TrimSpace(titleInput)
@@ -40,28 +39,28 @@ func (c *AddArticleCommand) Add() {
 		return
 	}
 
-	// 2. categoryの選択（一覧から番号選択）
+	// select category from config.Categories
 	category, err := promptSingleSelect(reader, "Category", config.Categories)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	// 3. tagの選択（一覧から複数選択、カンマ区切り番号）
+	// select tags from config.Tags
 	tags, err := promptMultiSelect(reader, "Tags", config.Tags)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	// 4. slugの自動採番（UUIDベース、人間に採番させない）
+	// auto-generate slug (UUID) and ensure uniqueness
 	slug, err := generateUniqueSlug(config.ArticleDir)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	// 5. dateの自動埋め込み
+	// set created_at timestamp
 	date := time.Now().Format(time.RFC3339)
 
 	post := entity.PostSummary{
@@ -73,7 +72,7 @@ func (c *AddArticleCommand) Add() {
 		UpdatedAt: "",
 	}
 
-	// 6. フロントマター付きMarkdownの書き出し
+	// write the post file with front matter
 	if err := writePostFile(config.ArticleDir, post); err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -82,7 +81,7 @@ func (c *AddArticleCommand) Add() {
 	fmt.Printf("Success! Created %s\n", filepath.Join(config.ArticleDir, post.Slug+".md"))
 }
 
-// フロントマター付きMarkdownファイルを書き出す
+// writePostFile creates a Markdown file with front matter in the specified article directory.
 func writePostFile(articleDir string, post entity.PostSummary) error {
 	if err := os.MkdirAll(articleDir, 0755); err != nil {
 		return fmt.Errorf("failed to create article_dir: %w", err)
@@ -114,7 +113,7 @@ func writePostFile(articleDir string, post entity.PostSummary) error {
 
 	path := filepath.Join(articleDir, post.Slug+".md")
 
-	// 念のため上書き防止（UUID採番後の最終チェック）
+	// Check if the file already exists to avoid overwriting
 	if _, err := os.Stat(path); err == nil {
 		return fmt.Errorf("file already exists unexpectedly: %s", path)
 	}
@@ -126,10 +125,10 @@ func writePostFile(articleDir string, post entity.PostSummary) error {
 	return nil
 }
 
-// 単一選択のプロンプト（category用）
+// promptSingleSelect prompts the user to select a single option from a list. It returns the selected option or an empty string if skipped.
 func promptSingleSelect(reader *bufio.Reader, label string, options []string) (string, error) {
 	if len(options) == 0 {
-		fmt.Printf("Notice: no %s registered in cmsc.json. Skipping.\n", strings.ToLower(label))
+		fmt.Printf("Notice: no %s registered in brite.schema.json. Skipping.\n", strings.ToLower(label))
 		return "", nil
 	}
 
@@ -153,10 +152,10 @@ func promptSingleSelect(reader *bufio.Reader, label string, options []string) (s
 	return options[idx-1], nil
 }
 
-// 複数選択のプロンプト（tag用、カンマ区切りで番号を受け取る）
+// promptMultiSelect prompts the user to select multiple options from a list. It returns the selected options or an empty slice if skipped.
 func promptMultiSelect(reader *bufio.Reader, label string, options []string) ([]string, error) {
 	if len(options) == 0 {
-		fmt.Printf("Notice: no %s registered in cmsc.json. Skipping.\n", strings.ToLower(label))
+		fmt.Printf("Notice: no %s registered in brite.schema.json. Skipping.\n", strings.ToLower(label))
 		return []string{}, nil
 	}
 
@@ -195,7 +194,7 @@ func promptMultiSelect(reader *bufio.Reader, label string, options []string) ([]
 	return selected, nil
 }
 
-// UUIDベースでslugを自動採番する。衝突した場合は再採番する。
+// generateUniqueSlug generates a unique slug based on UUID. It retries if a collision occurs.
 func generateUniqueSlug(articleDir string) (string, error) {
 	for i := 0; i < 10; i++ {
 		candidate := uuid.New().String()

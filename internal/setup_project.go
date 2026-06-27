@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/taka1156/cms-cli/internal/entity"
+	"github.com/taka1156/brite/internal/entity"
 )
 
 type SetupProjectCommand struct{}
@@ -14,7 +14,7 @@ func NewSetupProjectCommand() *SetupProjectCommand {
 }
 
 func (c *SetupProjectCommand) Setup() {
-	config, err := loadJson[entity.CMSConfig](entity.CONFIG_FILE_NAME)
+	config, err := loadJson[entity.BriteConfig](entity.CONFIG_FILE_NAME)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

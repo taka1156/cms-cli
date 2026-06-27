@@ -1,9 +1,15 @@
-# cms-cli
 
-  ![GitHub Release](https://img.shields.io/github/v/release/taka1156/cms-cli?sort=semver&display_name=release&color=60a5fa&link=https%3A%2F%2Fgithub.com%2Ftaka1156%2Fcms-cli%2Freleases%2F)
-  ![GitHub Release Date](https://img.shields.io/github/release-date/taka1156/cms-cli?color=60a5fa)
-  ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/taka1156/cms-cli/release.yml?logo=github&color=60a5fa)
-  ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/taka1156/cms-cli?color=60a5fa&logo=go&logoColor=white)
+ <picture>
+ 	  <source media="(prefers-color-scheme: dark)" srcset="./logo-dark.svg">
+	  <source media="(prefers-color-scheme: light)" srcset="./logo-light.svg">
+	  <img alt="Brite logo" src="./logo-light.svg" width="100%" height="100%">
+  </picture>
+
+
+  ![GitHub Release](https://img.shields.io/github/v/release/taka1156/brite?sort=semver&display_name=release&color=60a5fa&link=https%3A%2F%2Fgithub.com%2Ftaka1156%2Fbrite%2Freleases%2F)
+  ![GitHub Release Date](https://img.shields.io/github/release-date/taka1156/brite?color=60a5fa)
+  ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/taka1156/brite/release.yml?logo=github&color=60a5fa)
+  ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/taka1156/brite?color=60a5fa&logo=go&logoColor=white)
 
 
 A minimal CLI for Markdown-based personal content management. Write, build, and publish on your own stack.
@@ -15,32 +21,32 @@ A minimal CLI for Markdown-based personal content management. Write, build, and 
 
 | Command | Description |
 |---|---|
-| `cmsc init` | Create a default `cmsc.json` config file in the current directory. Fails if one already exists. |
-| `cmsc setup` | Create the directories defined in `cmsc.json` (`articleDir` and `imageDir` sub-directories). |
-| `cmsc new` | Interactively create a new Markdown post with front matter under `articleDir`. Prompts for title, category, and tags. The slug is auto-generated as a UUID (never entered manually) and the date is filled automatically with the current timestamp. |
-| `cmsc convert` | Read `cmsc.json`, walk `articleDir` for `.md` files, parse each front matter, and build/write the output JSON (`all` / `byCategory` / `byTag`) to `outputDir`. Posts with unregistered categories or tags are skipped with a notice. |
-| `cmsc publish` | Upload changed images to Cloudflare R2 (diff-based, tracked via `.caches.json`) and upload the output JSON files to R2. Requires `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, and `R2_ENDPOINT`, `ENABLE_PATH_STYLE_ENDPOINTS` environment variables. |
+| `brite init` | Create a default `brite.json` config file in the current directory. Fails if one already exists. |
+| `brite setup` | Create the directories defined in `brite.json` (`articleDir` and `imageDir` sub-directories). |
+| `brite new` | Interactively create a new Markdown post with front matter under `articleDir`. Prompts for title, category, and tags. The slug is auto-generated as a UUID (never entered manually) and the date is filled automatically with the current timestamp. |
+| `brite convert` | Read `brite.json`, walk `articleDir` for `.md` files, parse each front matter, and build/write the output JSON (`all` / `byCategory` / `byTag`) to `outputDir`. Posts with unregistered categories or tags are skipped with a notice. |
+| `brite publish` | Upload changed images to Cloudflare R2 (diff-based, tracked via `.caches.json`) and upload the output JSON files to R2. Requires `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, and `R2_ENDPOINT`, `ENABLE_PATH_STYLE_ENDPOINTS` environment variables. |
 
 ## Quick Start
 
 ```bash
 # 1. Initialize config
-cmsc init
+brite init
 
 # 2. Create directories
-cmsc setup
+brite setup
 
 # 3. Create a new post (interactive)
-cmsc new
+brite new
 
 # 4. Build the output JSON
-cmsc convert
+brite convert
 
 # 5. Publish to R2
-cmsc publish
+brite publish
 ```
 
-## Config file: `cmsc.json`
+## Config file: `brite.json`
 
 | Field | Description |
 |---|---|
@@ -61,7 +67,7 @@ cmsc publish
 | `R2_ENDPOINT` | S3-compatible endpoint URL (e.g. `https://<account_id>.r2.cloudflarestorage.com`) |
 | `ENABLE_PATH_STYLE_ENDPOINTS` | Set `true` if your storage requires path-style URLs (default: `false`) |
 
-## Directory structure created by `cmsc setup`
+## Directory structure created by `brite setup`
 
 ```
 <articleDir>/
@@ -71,7 +77,7 @@ cmsc publish
 └── tag/
 ```
 
-## R2 bucket structure after `cmsc publish`
+## R2 bucket structure after `brite publish`
 
 ```
 <bucketName>/
@@ -101,32 +107,32 @@ cmsc publish
 
 | コマンド | 説明 |
 |---|---|
-| `cmsc init` | カレントディレクトリにデフォルトの `cmsc.json` を生成します。既に存在する場合は失敗します。 |
-| `cmsc setup` | `cmsc.json` に定義されたディレクトリ（`articleDir` および `imageDir` 配下のサブディレクトリ）を作成します。 |
-| `cmsc new` | 対話形式でフロントマター付きの新規Markdown記事を `articleDir` 配下に作成します。タイトル・カテゴリ・タグを順に質問されます。slugはUUIDで自動採番され（手動入力不可）、dateは現在日時が自動で埋め込まれます。 |
-| `cmsc convert` | `cmsc.json` を読み込み、`articleDir` 内の `.md` ファイルを走査してフロントマターを解析し、`outputDir` に `all` / `byCategory` / `byTag` を含むJSONを書き出します。未登録のカテゴリ・タグを持つ記事はスキップされ、通知が表示されます。 |
-| `cmsc publish` | 画像の差分をCloudflare R2にアップロードし（差分は `.caches.json` で管理）、出力JSONもR2にアップロードします。`R2_ACCESS_KEY_ID`・`R2_SECRET_ACCESS_KEY`・`R2_ENDPOINT`・`ENABLE_PATH_STYLE_ENDPOINTS`の環境変数が必要です。 |
+| `brite init` | カレントディレクトリにデフォルトの `brite.json` を生成します。既に存在する場合は失敗します。 |
+| `brite setup` | `brite.json` に定義されたディレクトリ（`articleDir` および `imageDir` 配下のサブディレクトリ）を作成します。 |
+| `brite new` | 対話形式でフロントマター付きの新規Markdown記事を `articleDir` 配下に作成します。タイトル・カテゴリ・タグを順に質問されます。slugはUUIDで自動採番され（手動入力不可）、dateは現在日時が自動で埋め込まれます。 |
+| `brite convert` | `brite.json` を読み込み、`articleDir` 内の `.md` ファイルを走査してフロントマターを解析し、`outputDir` に `all` / `byCategory` / `byTag` を含むJSONを書き出します。未登録のカテゴリ・タグを持つ記事はスキップされ、通知が表示されます。 |
+| `brite publish` | 画像の差分をCloudflare R2にアップロードし（差分は `.caches.json` で管理）、出力JSONもR2にアップロードします。`R2_ACCESS_KEY_ID`・`R2_SECRET_ACCESS_KEY`・`R2_ENDPOINT`・`ENABLE_PATH_STYLE_ENDPOINTS`の環境変数が必要です。 |
 
 ## クイックスタート
 
 ```bash
 # 1. 設定ファイルを初期化
-cmsc init
+brite init
 
 # 2. ディレクトリを作成
-cmsc setup
+brite setup
 
 # 3. 新規記事を作成（対話形式）
-cmsc new
+brite new
 
 # 4. JSONを出力
-cmsc convert
+brite convert
 
 # 5. R2に公開
-cmsc publish
+brite publish
 ```
 
-## 設定ファイル: `cmsc.json`
+## 設定ファイル: `brite.json`
 
 | フィールド | 説明 |
 |---|---|
@@ -147,7 +153,7 @@ cmsc publish
 | `R2_ENDPOINT` | S3互換エンドポイントURL（例: `https://<account_id>.r2.cloudflarestorage.com`） |
 | `ENABLE_PATH_STYLE_ENDPOINTS` | パス形式のURLが必要なストレージを使う場合は `true` を指定（デフォルト: `false`） |
 
-## `cmsc setup` で作成されるディレクトリ構造
+## `brite setup` で作成されるディレクトリ構造
 
 ```
 <articleDir>/
@@ -157,7 +163,7 @@ cmsc publish
 └── tag/
 ```
 
-## `cmsc publish` 後のR2バケット構造
+## `brite publish` 後のR2バケット構造
 
 ```
 <bucketName>/

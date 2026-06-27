@@ -1,6 +1,6 @@
-BINARY := cmsc
+BINARY := brite
 BIN_DIR := ./sample
-CMD := ./cmd/cms-cli
+CMD := ./cmd/brite
 
 DIST_TARGETS := \
 	linux/amd64/tar.gz \

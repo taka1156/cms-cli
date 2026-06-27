@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/taka1156/cms-cli/internal/entity"
+	"github.com/taka1156/brite/internal/entity"
 )
 
 type ChangeType int
@@ -38,7 +38,7 @@ func NewPublishArticleCommand() *PublishArticleCommand {
 }
 
 func (c *PublishArticleCommand) Publish() {
-	cmsConfig, err := loadJson[entity.CMSConfig](entity.CONFIG_FILE_NAME)
+	briteConfig, err := loadJson[entity.BriteConfig](entity.CONFIG_FILE_NAME)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -64,7 +64,7 @@ func (c *PublishArticleCommand) Publish() {
 		cacheByPath[cache.FilePath] = cache
 	}
 
-	diffs, err := detectDiff(cmsConfig.ImageDir, cacheByPath)
+	diffs, err := detectDiff(briteConfig.ImageDir, cacheByPath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -78,13 +78,13 @@ func (c *PublishArticleCommand) Publish() {
 		return
 	}
 
-	err = applyDiffs(ctx, client, cmsConfig.R2.BucketName, diffs)
+	err = applyDiffs(ctx, client, briteConfig.R2.BucketName, diffs)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	if err := postOutput(cmsConfig, client); err != nil {
+	if err := postOutput(briteConfig, client); err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
@@ -214,17 +214,17 @@ func applyDiffs(ctx context.Context, client *s3.Client, bucketName string, diffs
 	return nil
 }
 
-func postOutput(cmsConfig entity.CMSConfig, client *s3.Client) error {
+func postOutput(briteConfig entity.BriteConfig, client *s3.Client) error {
 	jsonDir := []string{
 		entity.ALL_JSON_FILE_NAME,
 		entity.CATEGORY_JSON_FILE_NAME,
 		entity.TAG_JSON_FILE_NAME,
 	}
 	for _, jsonFile := range jsonDir {
-		filePath := filepath.Join(cmsConfig.OutputDir, jsonFile)
+		filePath := filepath.Join(briteConfig.OutputDir, jsonFile)
 
-		if err := uploadFileToR2(context.TODO(), client, cmsConfig.R2.BucketName, filePath, filePath); err != nil {
-			return fmt.Errorf("failed to add file %s to multipart: %w", filePath, err)
+		if err := uploadFileToR2(context.TODO(), client, briteConfig.R2.BucketName, filePath, filePath); err != nil {
+			return fmt.Errorf("failed to add file %s to R2: %w", filePath, err)
 		}
 	}
 
