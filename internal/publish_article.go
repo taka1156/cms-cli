@@ -58,7 +58,13 @@ func (c *PublishArticleCommand) Publish() {
 		}
 	}
 
-	diffs, err := detectDiff(cmsConfig.ImageDir, caches)
+	// Create a map for quick lookup of existing caches
+	cacheByPath := make(map[string]entity.ImageCache)
+	for _, cache := range caches {
+		cacheByPath[cache.FilePath] = cache
+	}
+
+	diffs, err := detectDiff(cmsConfig.ImageDir, cacheByPath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -124,7 +130,7 @@ func contentType(path string) string {
 	}
 }
 
-func detectDiff(imageDir string, caches []entity.ImageCache) ([]ImageDiff, error) {
+func detectDiff(imageDir string, caches map[string]entity.ImageCache) ([]ImageDiff, error) {
 	current := map[string]entity.ImageCache{}
 
 	err := filepath.Walk(imageDir, func(path string, info os.FileInfo, err error) error {
@@ -144,21 +150,11 @@ func detectDiff(imageDir string, caches []entity.ImageCache) ([]ImageDiff, error
 		return nil, err
 	}
 
-	// Helper function to find a cache entry by file path
-	findCache := func(path string) *entity.ImageCache {
-		for _, cache := range caches {
-			if cache.FilePath == path {
-				return &cache
-			}
-		}
-		return nil
-	}
-
 	var diffs []ImageDiff
 
 	// Detect added, modified, no change images
 	for path, img := range current {
-		if prev := findCache(path); prev == nil {
+		if prev, ok := caches[path]; !ok {
 			diffs = append(diffs, ImageDiff{
 				FilePath:   path,
 				Size:       img.Size,
@@ -180,8 +176,8 @@ func detectDiff(imageDir string, caches []entity.ImageCache) ([]ImageDiff, error
 	}
 
 	// Detect deleted images
-	for _, cache := range caches {
-		if _, ok := current[cache.FilePath]; !ok {
+	for path, cache := range caches {
+		if _, ok := current[path]; !ok {
 			diffs = append(diffs, ImageDiff{
 				FilePath:   cache.FilePath,
 				Size:       0,
