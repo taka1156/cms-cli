@@ -1,5 +1,5 @@
 {
-  "$schema": "../cmsc.schema.json",
+  "$schema": "../brite.schema.json",
   "articleDir": "./articles",
   "imageDir": "./images",
   "outputDir": "./output",
