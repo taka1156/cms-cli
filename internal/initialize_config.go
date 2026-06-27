@@ -16,7 +16,7 @@ func NewInitializeConfigCommand() *InitializeConfigCommand {
 
 // 初期化コマンドの処理
 func (c *InitializeConfigCommand) Initialize() {
-	configName := "cmsc.json"
+	configName := entity.CONFIG_FILE_NAME
 
 	// すでにファイルがある場合は上書きを防ぐ
 	if _, err := os.Stat(configName); err == nil {

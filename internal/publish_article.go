@@ -61,7 +61,7 @@ func (c *PublishArticleCommand) Publish() {
 
 	ctx := context.Background()
 
-	client, err := newS3Client(cmsConfig)
+	client, err := newS3Client()
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -216,7 +216,7 @@ func postOutput(cmsConfig entity.CMSConfig, client *s3.Client) error {
 	return nil
 }
 
-func newS3Client(cmsConfig entity.CMSConfig) (*s3.Client, error) {
+func newS3Client() (*s3.Client, error) {
 	accessKey := os.Getenv("R2_ACCESS_KEY_ID")
 	secretKey := os.Getenv("R2_SECRET_ACCESS_KEY")
 	endpoint := os.Getenv("R2_ENDPOINT")

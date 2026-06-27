@@ -9,3 +9,6 @@ const (
 	CATEGORY_JSON_FILE_NAME = "category.json"
 	TAG_JSON_FILE_NAME      = "tag.json"
 )
+
+const CACHE_FILE_NAME = ".caches.json"
+const CONFIG_FILE_NAME = "cmsc.json"

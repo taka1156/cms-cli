@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -25,7 +26,7 @@ func NewConvertArticleCommand() *ConvertArticleCommand {
 func (c *ConvertArticleCommand) Convert(jsonNames entity.JsonNames) {
 
 	// 1. cmsc.json の読み込み（通常のビルド処理）
-	config, err := loadConfig()
+	config, err := loadJson[entity.CMSConfig](entity.CONFIG_FILE_NAME)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -82,6 +83,60 @@ func (c *ConvertArticleCommand) Convert(jsonNames entity.JsonNames) {
 	fmt.Printf("Success! Exported %s, %s, %s to %s\n", jsonNames.All, jsonNames.Category, jsonNames.Tag, config.OutputDir)
 }
 
+func replaceImagePaths(content, baseUrl, imageDir string) string {
+	var imgTagRegex = regexp.MustCompile(`!\[([^\]]*)\]\(([^)]+\.(png|svg|jpe?g|gif|webp))\)`)
+	var htmlImgRegex = regexp.MustCompile(`<img([^>]*?)src="([^"]+\.(png|svg|jpe?g|gif|webp))"([^>]*?)>`)
+
+	// Markdownの画像リンクを変換
+	content = imgTagRegex.ReplaceAllStringFunc(content, func(match string) string {
+		sub := imgTagRegex.FindStringSubmatch(match)
+		if len(sub) < 3 {
+			return match
+		}
+		alt := sub[1]
+		path := sub[2]
+
+		// 相対パスを正規化して imageDir 配下かチェック
+		clean := filepath.Clean(path)
+		if !strings.Contains(clean, imageDir) {
+			return match
+		}
+
+		// imageDir 以降のパスを抽出
+		idx := strings.Index(clean, imageDir)
+		rel := clean[idx+len(imageDir):]
+		url := strings.TrimSuffix(baseUrl, "/") + "/" + strings.TrimPrefix(rel, "/")
+
+		return fmt.Sprintf("![%s](%s)", alt, url)
+	})
+
+	// HTML img タグの src 属性も同様に変換
+	content = htmlImgRegex.ReplaceAllStringFunc(content, func(match string) string {
+		sub := htmlImgRegex.FindStringSubmatch(match)
+		if len(sub) < 3 {
+			return match
+		}
+		before := sub[1]
+		path := sub[2]
+		after := sub[3]
+
+		// 相対パスを正規化して imageDir 配下かチェック
+		clean := filepath.Clean(path)
+		if !strings.Contains(clean, imageDir) {
+			return match
+		}
+
+		// imageDir 以降のパスを抽出
+		idx := strings.Index(clean, imageDir)
+		rel := clean[idx+len(imageDir):]
+		url := strings.TrimSuffix(baseUrl, "/") + "/" + strings.TrimPrefix(rel, "/")
+
+		return fmt.Sprintf("<img%s src=\"%s\"%s>", before, url, after)
+	})
+
+	return content
+}
+
 // 全記事を走査し、summaryとcontentを読み込む。カテゴリ/タグごとの記事一覧も作成する。
 func walkMarkdownFiles(contentDir string, data *entity.ResponseData, config entity.CMSConfig, categoryNames, tagNames []string) (*entity.ResponseData, error) {
 	contains := func(list []string, item string) bool {
@@ -126,6 +181,7 @@ func walkMarkdownFiles(contentDir string, data *entity.ResponseData, config enti
 
 		// 本文（フロントマター以降の部分）をそのままcontentとして保持
 		post.Content = strings.TrimSpace(string(parts[2]))
+		post.Content = replaceImagePaths(post.Content, config.R2.BaseUrl, config.ImageDir)
 
 		data.All = append(data.All, post)
 

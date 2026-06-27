@@ -53,6 +53,13 @@
       ]
     }
   },
-  "required": ["articleDir", "imageDir", "outputDir", "categories", "tags"],
+  "required": [
+    "articleDir",
+    "imageDir",
+    "outputDir",
+    "categories",
+    "tags",
+    "r2"
+  ],
   "additionalProperties": false
 }
