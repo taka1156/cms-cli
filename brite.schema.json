@@ -63,8 +63,7 @@
     "imageDir",
     "outputDir",
     "categories",
-    "tags",
-    "r2"
+    "tags"
   ],
   "additionalProperties": false
 }
