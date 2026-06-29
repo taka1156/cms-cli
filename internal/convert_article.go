@@ -175,7 +175,6 @@ func walkMarkdownFiles(contentDir string, data *entity.ResponseData, config enti
 		relPath, _ := filepath.Rel(contentDir, path)
 		post.Summary.Slug = strings.TrimSuffix(relPath, filepath.Ext(relPath))
 
-		// 本文（フロントマター以降の部分）をそのままcontentとして保持
 		post.Content = strings.TrimSpace(string(parts[2]))
 		post.Content = replaceImagePaths(post.Content, config.R2.BaseUrl, config.ImageDir)
 
@@ -213,7 +212,6 @@ func walkMarkdownFiles(contentDir string, data *entity.ResponseData, config enti
 		return nil, &json.InvalidUnmarshalError{}
 	}
 
-	// 3.5. 作成日(date)の降順で全カテゴリのソート
 	sortPostsByDateDesc(data.All)
 
 	return data, nil

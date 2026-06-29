@@ -46,8 +46,7 @@ Examples:
 	brite setup --config brite.portfolio.json
 	brite new --config brite.blog.json
 	brite convert --config brite.portfolio.json
-	brite publish --config brite.blog.json
-`
+	brite publish --config brite.blog.json`
 
 type HelpBriteCommand struct{}
 

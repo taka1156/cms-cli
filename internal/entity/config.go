@@ -16,7 +16,6 @@ type R2Config struct {
 	BaseUrl    string `json:"baseUrl"`
 }
 
-// 設定ファイルの構造
 type BriteConfig struct {
 	Schema     string   `json:"$schema"`
 	ArticleDir string   `json:"articleDir"`
@@ -37,13 +36,11 @@ type PostSummary struct {
 	UpdatedAt string   `json:"updated_at" yaml:"updated_at"`
 }
 
-// 各記事のデータ構造
 type Post struct {
 	Summary PostSummary `json:"summary" yaml:"summary"`
 	Content string      `json:"content" yaml:"-"`
 }
 
-// 最終出力のデータ構造（byCategory/byTagはslug参照のみで本文の重複を避ける）
 type ResponseData struct {
 	All        []Post                   `json:"all"`
 	ByCategory map[string][]PostSummary `json:"byCategory"`

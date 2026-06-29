@@ -40,7 +40,6 @@ func main() {
 		internal.NewPublishArticleCommand(),
 	}
 
-	// コマンド引数のチェック
 	switch os.Args[1] {
 	case "help":
 		cmd.Help()
