@@ -38,7 +38,7 @@ func NewPublishArticleCommand() *PublishArticleCommand {
 }
 
 func (c *PublishArticleCommand) Publish(clientConfig entity.ClientConfig) {
-	briteConfig, err := loadJson[entity.BriteConfig](*clientConfig.ConfigPath)
+	briteConfig, err := loadJson[entity.BriteConfig](clientConfig.ConfigPath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

@@ -24,7 +24,7 @@ func NewConvertArticleCommand() *ConvertArticleCommand {
 
 func (c *ConvertArticleCommand) Convert(clientConfig entity.ClientConfig, jsonNames entity.JsonNames) {
 
-	config, err := loadJson[entity.BriteConfig](*clientConfig.ConfigPath)
+	config, err := loadJson[entity.BriteConfig](clientConfig.ConfigPath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

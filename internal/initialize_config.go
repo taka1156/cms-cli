@@ -16,7 +16,7 @@ func NewInitializeConfigCommand() *InitializeConfigCommand {
 }
 
 func (c *InitializeConfigCommand) Initialize(clientConfig entity.ClientConfig) {
-	configName := *clientConfig.ConfigPath
+	configName := clientConfig.ConfigPath
 
 	// Check if the config file already exists
 	if _, err := os.Stat(configName); err == nil {

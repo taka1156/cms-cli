@@ -1,7 +1,7 @@
 package entity
 
 type ClientConfig struct {
-	ConfigPath *string
+	ConfigPath string
 }
 
 type JsonNames struct {
