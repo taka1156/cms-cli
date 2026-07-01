@@ -90,7 +90,7 @@ main() {
 	fi
 
 	echo "installed: $INSTALL_DIR/$BINARY_NAME"
-	echo "run: \`${BINARY_NAME} -h\` or \`${BINARY_SHORTCUT_NAME} -h\`"
+	echo "run: \`${BINARY_NAME} help\` or \`${BINARY_SHORTCUT_NAME} help\`"
 }
 
 main "$@"
