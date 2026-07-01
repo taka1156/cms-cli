@@ -29,6 +29,7 @@ func (c *InitializeConfigCommand) Initialize(clientConfig entity.ClientConfig) {
 		Schema:     "./brite.schema.json",
 		ArticleDir: "./articles",
 		ImageDir:   "./images",
+		CacheDir:   "./cache",
 		OutputDir:  "./dist",
 		Categories: []string{"tech", "life", "hobby"},
 		Tags:       []string{"Go", "CLI"},

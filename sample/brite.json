@@ -3,6 +3,7 @@
   "articleDir": "./articles",
   "imageDir": "./images",
   "outputDir": "./output",
+  "cacheDir": "./cache",
   "categories": [
     "commandline",
     "frontend",

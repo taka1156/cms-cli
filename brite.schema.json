@@ -23,6 +23,11 @@
       "description": "The directory path where all build outputs are exported.",
       "default": "./dist"
     },
+    "cacheDir": {
+      "type": "string",
+      "description": "The directory path where your cache files are stored.",
+      "default": "./cache"
+    },
     "categories": {
       "type": "array",
       "description": "A whitelist of allowed categories. Unregistered categories found in markdown will be skipped.",
@@ -62,6 +67,7 @@
     "articleDir",
     "imageDir",
     "outputDir",
+    "cacheDir",
     "categories",
     "tags"
   ],

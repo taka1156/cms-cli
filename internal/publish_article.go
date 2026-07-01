@@ -45,13 +45,14 @@ func (c *PublishArticleCommand) Publish(clientConfig entity.ClientConfig) {
 	}
 
 	caches := []entity.ImageCache{}
-	if _, err := os.Stat(entity.CACHE_FILE_NAME); os.IsNotExist(err) {
-		if err := saveCache(entity.CACHE_FILE_NAME, caches); err != nil {
+	cacheFilePath := filepath.Join(briteConfig.CacheDir, entity.CACHE_FILE_NAME)
+	if _, err := os.Stat(cacheFilePath); os.IsNotExist(err) {
+		if err := saveCache(cacheFilePath, caches); err != nil {
 			fmt.Printf("Error creating .caches.json: %v\n", err)
 			return
 		}
 	} else {
-		caches, err = loadJson[[]entity.ImageCache](entity.CACHE_FILE_NAME)
+		caches, err = loadJson[[]entity.ImageCache](cacheFilePath)
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -102,7 +103,7 @@ func (c *PublishArticleCommand) Publish(clientConfig entity.ClientConfig) {
 		}
 	}
 
-	err = saveCache(entity.CACHE_FILE_NAME, newCaches)
+	err = saveCache(cacheFilePath, newCaches)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

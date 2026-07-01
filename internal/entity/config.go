@@ -21,6 +21,7 @@ type BriteConfig struct {
 	ArticleDir string   `json:"articleDir"`
 	ImageDir   string   `json:"imageDir"`
 	OutputDir  string   `json:"outputDir"`
+	CacheDir   string   `json:"cacheDir"`
 	Categories []string `json:"categories"`
 	Tags       []string `json:"tags"`
 	R2         R2Config `json:"r2"`
